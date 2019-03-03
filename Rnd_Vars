@@ -1,0 +1,195 @@
+Public Function UniformRV(sngMin As Single, sngMax As Single, Optional myRN As Single = -1) As Single
+        Dim sngFunctionRN As Single
+        UniformRV = -99999
+        If sngMin > sngMax Then Exit Function
+        If myRN < 0 Or myRN > 1 Then
+            sngFunctionRN = rnd()
+        Else: sngFunctionRN = myRN
+    End If
+        UniformRV = sngMin + (sngMax - sngMin) * sngFunctionRN
+End Function
+
+
+Public Function ExpRN(beta As Single) As Single
+    If beta > 0 Or beta = 0 Then
+        ExpRN = -beta * Log(1 - rnd())
+    Else: ExpRN = -99999
+    End If
+End Function
+
+Public Function ErlRV(k As Single, u As Single) As Single
+Dim Sum As Single
+Dim i As Single
+    If k > 0 Then
+        Sum = 0
+        For i = 1 To k
+            Sum = Sum + ExpRN(1 / u)
+        Next i
+        ErlRV = Sum
+    Else
+        ErlRV = -999999
+    End If
+End Function
+
+Public Function GammaLess1(alpha As Single) As Single
+Dim u1 As Single
+Dim u2 As Single
+Dim p As Single
+Dim b As Single
+Dim y As Single
+
+    b = (Exp(1) + alpha) / Exp(1)
+
+    Do
+        u1 = rnd()
+        p = b * u1
+        If p < 1 Then
+            y = p ^ (1 / alpha)
+        Else
+            y = -Log((b - p) / alpha)
+    End If
+    u2 = rnd()
+
+Loop Until u2 <= Exp(-y) Or u2 <= y ^ (alpha - 1)
+    GammaLess1 = y
+End Function
+
+
+Public Function RNGammagreater1(alpha As Single) As Single
+
+Dim a As Single
+Dim b As Single
+Dim q As Single
+Dim theta As Single
+Dim d As Single
+Dim u1 As Single
+Dim u2 As Single
+Dim v As Single
+Dim y As Single
+Dim z As Single
+Dim w As Single
+
+a = 1 / Sqr(2 * alpha - 1)
+b = alpha - Log(4)
+q = alpha + 1 / alpha
+theta = 4.5
+d = 1 + Log(theta)
+
+    Do
+        u1 = 0 + (1 - 0) * rnd()
+        u2 = 0 + (1 - 0) * rnd()
+
+        v = a * Log(u1 / (1 - u1))
+        y = alpha * Exp(1) ^ v
+        z = u1 ^ 2 * u2
+        w = b + q * v - y
+
+Loop Until (w + d) - (theta * z) >= 0 Or w >= Log(z)
+        RNGammagreater1 = y
+End Function
+
+
+Public Function wb(alpha As Single, beta As Single) As Double
+Dim x As Single
+Dim mid As Single
+Dim med1 As Single
+    x = rnd()
+    mid = alpha / (beta * Exp(alpha))
+    med1 = x * Exp(alpha - 1)
+    wb = (mid * med1 * Exp(-(x / beta)) * Exp(alpha))
+End Function
+Sub file()
+End Sub
+
+
+
+Function NormRand() As Double
+Dim y As Double, w As Double, v1 As Double, v2 As Double
+Static flag As Boolean, x2 As Double
+    If flag Then
+        NormRand = x2
+        ' Force calculation next time.
+        flag = False
+    Else
+        Do
+            v1 = 2 * rnd() - 1#
+            v2 = 2 * rnd() - 1#
+            w = v1 * v1 + v2 * v2
+        Loop Until w <= 1#
+
+        y = Sqr(-2# * Log(w) / w)
+
+        NormRand = v2 * y
+        x2 = v1 * y
+        flag = True
+    End If
+
+End Function
+Sub file1()
+End Sub
+
+
+
+'Beta RV
+Public Function BetaRV(alpha1 As Single, alpha2 As Single) As Single
+Dim y1 As Single
+Dim y2 As Single
+Dim u As Single
+    u = rnd()
+
+    If alpha1 < 1 Then
+        y1 = GammaLess1(alpha1)
+    ElseIf alpha1 > 1 Then
+        y1 = RNGammagreater1(alpha1)
+    End If
+
+    If alpha2 < 1 Then
+        y2 = GammaLess1(alpha2)
+    ElseIf alpha1 > 1 Then
+        y2 = RNGammagreater1(alpha2)
+    End If
+
+    BetaRV = y1 / (y1 + y2)
+
+End Function
+
+
+' BinomialRV
+Public Function BernoulliRV(p As Single) As Single
+Dim u As Single
+    u = rnd()
+    If u <= p Then
+        BernoulliRV = 1
+    Else
+        BernoulliRV = 0
+End If
+End Function
+
+Public Function BinomialRV(t As Single, p As Single) As Single
+Dim yber As Single
+Dim y As Single
+Dim i As Single
+
+    y = 0
+    For i = 1 To t
+        yber = BernoulliRV(p)
+        y = y + yber
+    Next i
+
+    BinomialRV = y
+
+End Function
+
+'Poisson RV
+Function PoisRV(lamb As Integer)
+    l = Exp(-lamb)
+    n = 0
+    p = 1
+
+    Do
+         n = n + 1
+         p = p * rnd()
+    Loop While p > l
+
+    PoisRV = n - 1
+End Function
