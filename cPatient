@@ -1,0 +1,38 @@
+
+
+Private pName As String 'Declare name
+Private pSex As String 'Declare Gender
+Private pAge As Double 'Declare Age
+Private pIat As Double 'Declare IAT
+
+' Name property
+Public Property Get Name() As String 'GET will return a value from the class
+    Name = pName
+End Property
+Public Property Let Name(Value As String) 'LET will put a value into the class
+    pName = Value
+End Property
+
+' Sex property
+Public Property Get Sex() As String
+    Sex = pSex
+End Property
+Public Property Let Sex(Value As String)
+    pSex = Value
+End Property
+
+' Age property
+Public Property Get Age() As Double
+    Age = pAge
+End Property
+Public Property Let Age(Value As Double)
+    pAge = Value
+End Property
+
+' IAT property
+Public Property Get Iat() As Double
+    Iat = pIat
+End Property
+Public Property Let Iat(Value As Double)
+    pIat = Value
+End Property
