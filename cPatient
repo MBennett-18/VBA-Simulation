@@ -1,38 +1,75 @@
 
 
-Private pName As String 'Declare name
-Private pSex As String 'Declare Gender
-Private pAge As Double 'Declare Age
-Private pIat As Double 'Declare IAT
 
-' Name property
-Public Property Get Name() As String 'GET will return a value from the class
+Private pName As Integer 'Declare name
+Private pChoice_appnt As Integer
+Private pPs_appnt As Double
+Private pWait As Long
+Private pMax_ps As Integer
+Private pCurrent_ps As Integer
+Private pCycle_sched As Boolean
+
+
+' ID property
+Public Property Get Name() As Integer
     Name = pName
 End Property
-Public Property Let Name(Value As String) 'LET will put a value into the class
-    pName = Value
+Public Property Let Name(value As Integer)
+    pName = value
 End Property
 
-' Sex property
-Public Property Get Sex() As String
-    Sex = pSex
+' Choice appointment schedule
+Public Property Get Choice_appnt() As Integer '
+    Choice_appnt = pChoice_appnt
 End Property
-Public Property Let Sex(Value As String)
-    pSex = Value
-End Property
-
-' Age property
-Public Property Get Age() As Double
-    Age = pAge
-End Property
-Public Property Let Age(Value As Double)
-    pAge = Value
+Public Property Let Choice_appnt(value As Integer)
+    pChoice_appnt = value
 End Property
 
-' IAT property
-Public Property Get Iat() As Double
-    Iat = pIat
+' Partnership appointment schedule
+Public Property Get Ps_appnt() As Double
+    Ps_appnt = pPs_appnt
 End Property
-Public Property Let Iat(Value As Double)
-    pIat = Value
+Public Property Let Ps_appnt(value As Double)
+    pPs_appnt = value
 End Property
+
+'Running wait calculation
+Public Property Get Wait() As Long
+    Wait = pWait
+End Property
+Public Property Let Wait(lngWait As Long)
+    pWait = pWait + lngWait
+End Property
+
+'Max number of Partnership Appointments
+Public Property Get Max_ps() As Integer
+    Max_ps = pMax_ps
+End Property
+Public Property Let Max_ps(value As Integer)
+    pMax_ps = value
+End Property
+
+'Current Partnership Appointment
+Public Property Get Current_ps() As Integer
+    Current_ps = pCurrent_ps
+End Property
+Public Property Let Current_ps(value As Integer)
+    pCurrent_ps = value
+End Property
+
+Public Property Get Cycle_sched() As Boolean
+    Cycle_sched = pCycle_sched
+End Property
+Public Property Let Cycle_sched(value As Boolean)
+    pCycle_sched = value
+End Property
+
+
+
+
+'Init Max number of Partnership
+Public Sub InitializeMaxPS(intMin As Integer, intMax As Integer)
+    Me.Max_ps = intMin + Int(Rnd() * (intMax - intMin + 1))
+End Sub
+
