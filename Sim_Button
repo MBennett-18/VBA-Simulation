@@ -1,0 +1,118 @@
+Public Sub main_simulation()
+
+    Dim time() As New clsQueue
+    Dim patient As New Cpatient
+    Dim intPatientCount As Integer
+    Dim i As Integer
+    Dim j As Integer
+    Dim intMin As Integer
+    Dim intMax As Integer
+    Dim myStats As New clsStatItem
+    Dim myVariates As New clsVariates
+    Dim simtime As Integer
+    Dim out_count As Integer
+    
+    
+    'set number of time units in model
+    simtime = ThisWorkbook.Sheets("Main_Sheet").Cells(4, "D")
+    ReDim time(1 To simtime)
+    
+    For i = 1 To simtime
+        time(i).Capacity = 7 'Set as nubmer for now
+    Next i
+        
+    
+    ' Set number of patients to have in model
+    intPatientCount = ThisWorkbook.Sheets("Main_Sheet").Cells(5, "D")
+
+    'init patients - Assign Max PS appnts, search for next avail appnt
+    For i = 1 To intPatientCount
+        Set patient = New Cpatient
+        
+        'Gives a name
+        patient.Name = i
+        'Set Number of PS appointments
+        patient.InitializeMaxPS 2, 12
+        
+        patient.Cycle_sched = False
+        
+        
+        'Search for open slots
+        For j = 1 To simtime 'take a look through each day
+            If time(j).Count < time(j).Capacity Then 'If j count is < capacity, add new patient
+                time(j).Enqueue patient 'add the patient
+                patient.Choice_appnt = j 'set their Choice to the day j
+                patient.Wait = j
+                Exit For 'leave the loop
+            End If
+        Next j ' look to next day
+    Next i
+
+    'Choice appnt Mean
+    myStats.ClearStats
+    For i = 1 To simtime
+        If time(i).Count > 0 Then
+            For j = 1 To time(i).Count
+                Set patient = time(i).Item(j)
+                myStats.value = patient.Wait
+            Next j
+        End If
+    Next i
+    ThisWorkbook.Sheets("Main_Sheet").Cells(22, "D") = myStats.mean
+    
+    
+    
+    
+    ' Schedule first PS appointment
+    ' Removes patients from day of Choice, and adds on newly scheduled PS
+    For i = 1 To simtime ' for each day
+        If time(i).Count > 0 Then
+           For j = time(i).Count To 1 Step -1 'run through all patients
+                Set patient = time(i).Item(j)
+                If patient.Cycle_sched = False Then
+                    If patient.Current_ps < patient.Max_ps Then 'Exit system if had all PS appnts
+                        time(i).Dequeue j 'Take patient off of current list (Choice appnt)
+                        ' Schedule the next appointment
+                        For k = i + 1 To simtime  'look at least a week in advance
+                        '****** HOW DO I START LOOKING AT START NOT JUST UNTIL 365 or substract > 365*********
+                            If time(k).Count < time(i).Capacity Then
+                                patient.Ps_appnt = k
+                                If patient.Ps_appnt > 365 Then 'this seems sloppy to me
+                                    patient.Ps_appnt = k Mod 365
+                                    If patient.Ps_appnt = 0 Then
+                                        patient.Ps_appnt = 1
+                                    End If
+                                End If
+                                time(patient.Ps_appnt).Enqueue patient 'Add patient to new PS list
+                                patient.Current_ps = patient.Current_ps + 1 'This may be too early. First appoint <> 1?
+                                patient.Wait = patient.Wait + patient.Ps_appnt
+                                patient.Cycle_sched = True
+                                Exit For
+                            End If
+                    Next k
+    
+
+                Else
+                    time(i).Dequeue j 'Dispose of patient
+                    out_count = out_count + 1 'Count number disposed
+                End If
+            End If
+            Next j
+        End If
+    Next i
+    
+    myStats.ClearStats
+    'mean isn't as expected
+    For i = 1 To 365 'look through all days
+        If time(i).Count > 0 Then 'only if people on list
+            For j = 1 To time(i).Count 'For all people on that day
+                Set patient = time(i).Item(j)
+                myStats.value = patient.Wait
+            Next j 'next person on that day
+        End If
+    Next i 'next day
+    ThisWorkbook.Sheets("Main_Sheet").Cells(23, "D") = myStats.mean
+
+End Sub
+
+
